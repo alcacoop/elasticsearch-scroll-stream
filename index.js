@@ -23,7 +23,7 @@ var ElasticsearchScrollStream = function(client, query_opts, optional_fields, st
   optional_fields = (!!optional_fields) ? optional_fields : []
   if (!Array.isArray(optional_fields)) throw new Error("ElasticsearchScrollStream: optional_fields must be an array", optional_fields);
 
-  allowed_extrafields = ['_id', '_score', '_type', '_index'];
+  var allowed_extrafields = ['_id', '_score', '_type', '_index'];
   optional_fields.forEach(function(entry) {
     if (allowed_extrafields.indexOf(entry) == -1) {
       throw new Error("ElasticsearchScrollStream: property '" + entry + "' not allowed in optional_fields");
