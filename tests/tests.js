@@ -203,27 +203,31 @@ describe('elasticsearch_scroll_stream', function () {
     let current_doc
     let elasticsearch_client = new Client({ node: 'http://localhost:9200' })
 
-    let es_stream = new ElasticsearchScrollStream(elasticsearch_client, {
-      index: 'elasticsearch-test-scroll-stream',
-      type: 'test-type',
-      scroll: '10s',
-      size: '50',
-      _source: false,
-      body: {
-        query: {
-          bool: {
-            must: [
-              {
-                query_string: {
-                  default_field: '_all',
-                  query: 'name:third*',
+    let es_stream = new ElasticsearchScrollStream(
+      elasticsearch_client,
+      {
+        index: 'elasticsearch-test-scroll-stream',
+        type: 'test-type',
+        scroll: '10s',
+        size: '50',
+        _source: false,
+        body: {
+          query: {
+            bool: {
+              must: [
+                {
+                  query_string: {
+                    default_field: '_all',
+                    query: 'name:third*',
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
         },
       },
-    })
+      ['_id']
+    )
 
     es_stream.on('data', function (data) {
       expect(es_stream._total).to.equal(20)
