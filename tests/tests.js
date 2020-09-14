@@ -197,6 +197,51 @@ describe('elasticsearch_scroll_stream', function () {
     })
   })
 
+  it("Should stream correctly when '_source' property is false", function (done) {
+    this.timeout(10000)
+    let counter = 0
+    let current_doc
+    let elasticsearch_client = new Client({ node: 'http://localhost:9200' })
+
+    let es_stream = new ElasticsearchScrollStream(elasticsearch_client, {
+      index: 'elasticsearch-test-scroll-stream',
+      type: 'test-type',
+      scroll: '10s',
+      size: '50',
+      _source: false,
+      body: {
+        query: {
+          bool: {
+            must: [
+              {
+                query_string: {
+                  default_field: '_all',
+                  query: 'name:third*',
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    es_stream.on('data', function (data) {
+      expect(es_stream._total).to.equal(20)
+      current_doc = JSON.parse(data.toString())
+      expect(current_doc).to.have.property('_id')
+      counter++
+    })
+
+    es_stream.on('end', function () {
+      expect(counter).to.equal(20)
+      done()
+    })
+
+    es_stream.on('error', function (err) {
+      done(err)
+    })
+  })
+
   it('Should throw error when optional_fields is not an array', function (done) {
     let elasticsearch_client = new Client({ node: 'http://localhost:9200' })
 
